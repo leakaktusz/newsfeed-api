@@ -3,11 +3,12 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 var articles = new List<Article>
 {
@@ -31,8 +32,26 @@ var articles = new List<Article>
 };
 
 app.MapGet("/articles", () => articles);
+app.MapGet("/articles/{id:guid}", (Guid id) =>
+{
+    var article =articles.FirstOrDefault(a=>a.Id ==id);
+    return article is null ? Results.NotFound() : Results.Ok(article);
+}
+);
+app.MapPost("/articles", (CreateArticleRequest request) =>
+{
+        var article = new Article(
+        Guid.NewGuid(),
+        request.Title,
+        request.Body,
+        request.Author,
+        DateTimeOffset.UtcNow,
+        request.Tags ?? Array.Empty<string>()
+    );
+articles.Add(article);
+return Results.Created($"/articles/{article.Id}", article);
 
-// Configure the HTTP request pipeline.
+});
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
