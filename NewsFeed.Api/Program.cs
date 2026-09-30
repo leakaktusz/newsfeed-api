@@ -1,55 +1,45 @@
 using NewsFeed.Api.Models;
+using NewsFeed.Api.Data;
 using Scalar.AspNetCore;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
+builder.Services.AddDbContext<NewsFeedDbContext>(options=>
+options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+
 
 var app = builder.Build();
 
+app.UseHttpsRedirection();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-var articles = new List<Article>
-{
-    new Article(
-        Guid.NewGuid(),
-        "Ritzau launches new API",
-        "The Danish news agency published a new service for media customers.",
-        "Lea Lestál",
-        DateTimeOffset.UtcNow.AddDays(-1),
-        new[] { "tech", "denmark" }
-    ),
-    new Article(
-        Guid.NewGuid(),
-        "Something happened",
-        "Something new, and exciting happened here and now.",
-        "Lea Lestál",
-        DateTimeOffset.UtcNow.AddDays(-1),
-        new[] { "thing", "denmark" }
-    ),
-    // add two more here
-};
 
-app.MapGet("/articles", () => articles);
-app.MapGet("/articles/{id:guid}", (Guid id) =>
+
+app.MapGet("/articles", async (NewsFeedDbContext db) =>
+await db.Articles.OrderByDescending(a => a.PublishedAt).ToListAsync());
+
+app.MapGet("/articles/{id:guid}", async (Guid id, NewsFeedDbContext db) =>
 {
-    var article =articles.FirstOrDefault(a=>a.Id ==id);
+    var article = await db.Articles.FindAsync(id);
     return article is null ? Results.NotFound() : Results.Ok(article);
 }
 );
-app.MapPost("/articles", (CreateArticleRequest request) =>
+app.MapPost("/articles", async (CreateArticleRequestData request,  NewsFeedDbContext db) =>
 {
-        var article = new Article(
-        Guid.NewGuid(),
-        request.Title,
-        request.Body,
-        request.Author,
-        DateTimeOffset.UtcNow,
-        request.Tags ?? Array.Empty<string>()
-    );
-articles.Add(article);
-return Results.Created($"/articles/{article.Id}", article);
+    var article = new Article(
+    Guid.NewGuid(),
+    request.Title,
+    request.Body,
+    request.Author,
+    DateTimeOffset.UtcNow,
+    request.Tags ?? Array.Empty<string>()
+);
+    db.Articles.Add(article);
+    await db.SaveChangesAsync();
+    return Results.Created($"/articles/{article.Id}", article);
 
 });
 if (app.Environment.IsDevelopment())
@@ -58,7 +48,7 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
-app.UseHttpsRedirection();
+
 
 
 
