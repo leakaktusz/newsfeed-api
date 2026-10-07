@@ -33,9 +33,7 @@ Requires the [.NET 10 SDK](https://dotnet.microsoft.com/download), [PostgreSQL](
 
 ## Lessons learned
 
-<!-- Write 2-4 sentences yourself. For example: what surprised you coming from Python,
-     what was hard (EF Core migrations? dependency injection?), and how you used AI tools.
-     Only write what is true for this project. -->
+
 
 I used AI-assisted development throughout, working in small, verifiable steps: one change at a time, reviewed before moving on.
 
