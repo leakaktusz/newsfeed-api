@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using NewsFeed.Api.Models;
 
 namespace NewsFeed.Api.Tests;
+
 public class ArticlesEndpointsTests : IClassFixture<NewsFeedApiFactory>
 {
     private readonly HttpClient _client;
@@ -20,13 +21,13 @@ public class ArticlesEndpointsTests : IClassFixture<NewsFeedApiFactory>
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
     [Fact]
-    public async Task GetArticle_UnkownId_ReturnsNotFound()
+    public async Task GetArticle_UnknownId_ReturnsNotFound()
     {
         var response = await _client.GetAsync($"/articles/{Guid.NewGuid()}");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
-        [Fact]
+    [Fact]
     public async Task PostArticle_ThenGetById_ReturnsSameArticle()
     {
         var request = new CreateArticleRequestData("Test title", "Test body", "Tester", ["ci"]);
