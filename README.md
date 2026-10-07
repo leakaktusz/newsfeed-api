@@ -1,4 +1,5 @@
 # NewsFeed API
+[![CI](https://github.com/leakaktusz/newsfeed-api/actions/workflows/ci.yml/badge.svg)](https://github.com/leakaktusz/newsfeed-api/actions/workflows/ci.yml)
 
 A small news feed app: a C# / ASP.NET Core REST API with PostgreSQL and a simple web page.
 
@@ -7,13 +8,14 @@ A small news feed app: a C# / ASP.NET Core REST API with PostgreSQL and a simple
   <img src="docs/api-docs.png" alt="Interactive API documentation generated with OpenAPI and Scalar" width="49%">
 </p>
 
-.## Features
+## Features
 
 - REST API to create, list and retrieve articles
 - PostgreSQL persistence with Entity Framework Core migrations
 - HTML/JavaScript front end and interactive API docs (OpenAPI + Scalar)
+- Integration tests (xUnit + `WebApplicationFactory`) against a real PostgreSQL database, run by GitHub Actions on every push and pull request
 
-**Tech stack:** C#, ASP.NET Core (.NET 10), Entity Framework Core, PostgreSQL, JavaScript
+**Tech stack:** C#, ASP.NET Core (.NET 10), Entity Framework Core, PostgreSQL, JavaScript, xUnit, GitHub Actions
 
 ## API
 
@@ -30,13 +32,8 @@ Requires the [.NET 10 SDK](https://dotnet.microsoft.com/download), [PostgreSQL](
 1. Set the PostgreSQL credentials in `NewsFeed.Api/appsettings.Development.json`.
 2. `dotnet ef database update --project NewsFeed.Api`
 3. `dotnet run --project NewsFeed.Api`, then open http://localhost:5096 (API docs at `/scalar`).
-
-## Lessons learned
-
-
-
-I used AI-assisted development throughout, working in small, verifiable steps: one change at a time, reviewed before moving on.
+4.  `dotnet test` runs the integration tests. They use a separate `newsfeed_test` database on the same PostgreSQL, created automatically.
 
 ## Roadmap
 
-Input validation · xUnit tests · CI with GitHub Actions · Docker Compose
+Input validation | Docker Compose | Update & delete endpoints | Tag filtering
